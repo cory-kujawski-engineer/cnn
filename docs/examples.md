@@ -126,3 +126,50 @@
         article for article in articles
         if pattern.search(article['content'])
     ]
+
+## Module Integration
+
+### Using in Your Project
+
+    # Import in your Python file
+    from cnn_scraper import CNNNewsScraper
+    
+    class NewsAggregator:
+        def __init__(self):
+            self.cnn = CNNNewsScraper()
+        
+        def get_news(self):
+            return self.cnn.get_main_page_articles()
+        
+        def filter_news(self, keyword):
+            articles = self.get_news()
+            return [
+                article for article in articles
+                if keyword.lower() in article['title'].lower()
+            ]
+
+### As Part of a Web Application
+
+    from flask import Flask
+    from cnn_scraper import CNNNewsScraper
+    
+    app = Flask(__name__)
+    scraper = CNNNewsScraper()
+    
+    @app.route('/news')
+    def get_news():
+        articles = scraper.get_main_page_articles()
+        return {'articles': articles}
+
+### Scheduled Tasks
+
+    from cnn_scraper import CNNNewsScraper
+    import schedule
+    import time
+    
+    def scheduled_scraping():
+        scraper = CNNNewsScraper()
+        articles = scraper.get_main_page_articles()
+        save_to_database(articles)
+    
+    schedule.every(6).hours.do(scheduled_scraping)

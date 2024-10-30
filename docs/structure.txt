@@ -1,7 +1,0 @@
-docs/
-├── README.md
-├── api/
-│   └── scraper.md
-├── examples/
-│   └── basic_usage.md
-└── installation.md 

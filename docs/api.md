@@ -1,5 +1,50 @@
 # API Reference
 
+## Using as a Module
+
+The CNN Scraper can be imported and used in your own Python projects:
+
+    # Import the scraper
+    from cnn_scraper import CNNNewsScraper
+    
+    # Create an instance with default settings
+    scraper = CNNNewsScraper()
+    
+    # Or customize the base URL
+    custom_scraper = CNNNewsScraper(base_url="https://edition.cnn.com")
+
+### Integration Examples
+
+1. As part of a larger web scraping pipeline:
+
+    from cnn_scraper import CNNNewsScraper
+    
+    def news_pipeline():
+        # Initialize CNN scraper
+        cnn = CNNNewsScraper()
+        
+        # Get CNN articles
+        cnn_articles = cnn.get_main_page_articles()
+        
+        # Process in your pipeline
+        process_articles(cnn_articles)
+        store_in_database(cnn_articles)
+
+2. As a data source for analysis:
+
+    from cnn_scraper import CNNNewsScraper
+    import pandas as pd
+    
+    def analyze_news():
+        scraper = CNNNewsScraper()
+        articles = scraper.get_main_page_articles()
+        
+        # Convert to DataFrame
+        df = pd.DataFrame(articles)
+        
+        # Your analysis code here
+        return df
+
 ## CNNNewsScraper Class
 
 The main class for scraping CNN articles.

@@ -36,6 +36,19 @@ Basic usage example:
         print(f"Content: {article['content'][:300]}...")
         print(f"URL: {article['url']}\n")
 
+## Using as a Module
+
+Import and use in your own Python projects:
+
+    from cnn_scraper import CNNNewsScraper
+    
+    def my_news_function():
+        scraper = CNNNewsScraper()
+        articles = scraper.get_main_page_articles()
+        return process_my_way(articles)
+
+See the [API Reference](docs/api.md) for detailed integration examples.
+
 ## Documentation
 
 - [Installation Guide](docs/installation.md)
