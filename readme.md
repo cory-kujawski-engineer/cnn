@@ -10,6 +10,7 @@ A robust Python web scraper designed to extract articles from CNN's website. Thi
 - Handles network errors gracefully
 - User-agent spoofing to prevent blocking
 - Automatic rate limiting and timeout handling
+- Command-line interface (CLI) with customizable options
 
 ## Installation
 
@@ -23,6 +24,8 @@ Or install using setup.py:
 
 ## Quick Start
 
+### As a Module
+
 Basic usage example:
 
     from cnn_scraper import CNNNewsScraper
@@ -35,6 +38,23 @@ Basic usage example:
         print(f"Date: {article['date']}")
         print(f"Content: {article['content'][:300]}...")
         print(f"URL: {article['url']}\n")
+
+### Command Line Interface
+
+Basic CLI usage:
+
+    python cnn_scraper.py
+
+With options:
+
+    python cnn_scraper.py --threads 15 --content-preview all --output json
+
+Available CLI options:
+- `-t, --threads`: Number of threads (default: 10)
+- `-u, --user-agent`: Custom user agent string
+- `-c, --content-preview`: Content preview length (300, 500, 1000, or all)
+- `-o, --output`: Output format (console or json)
+- `-f, --file`: Output file name for JSON format
 
 ## Using as a Module
 
@@ -72,7 +92,6 @@ See requirements.txt for specific versions.
 3. Commit your changes
 4. Push to the branch
 5. Create a new Pull Request
-
 
 ## Acknowledgments
 
