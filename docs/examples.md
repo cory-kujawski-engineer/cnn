@@ -173,3 +173,57 @@
         save_to_database(articles)
     
     schedule.every(6).hours.do(scheduled_scraping)
+
+## Command Line Interface (CLI)
+
+The CNN Scraper can be used directly from the command line with various options:
+
+### Basic Usage
+
+    python cnn_scraper.py
+
+### Customizing Thread Count
+
+    python cnn_scraper.py --threads 15
+
+### Setting Custom User Agent
+
+    python cnn_scraper.py --user-agent "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
+
+### Adjusting Content Preview Length
+
+    # Show 500 characters of content
+    python cnn_scraper.py --content-preview 500
+    
+    # Show all content
+    python cnn_scraper.py --content-preview all
+
+### Saving to JSON
+
+    # Save to default file (cnn_articles.json)
+    python cnn_scraper.py --output json
+    
+    # Save to custom file
+    python cnn_scraper.py --output json --file my_articles.json
+
+### Full CLI Options
+
+    usage: cnn_scraper.py [-h] [-t THREADS] [-u USER_AGENT] [-c {300,500,1000,all}]
+                         [-o {console,json}] [-f FILE]
+
+    options:
+      -h, --help            show this help message and exit
+      -t THREADS, --threads THREADS
+                           Number of threads to use (default: 10)
+      -u USER_AGENT, --user-agent USER_AGENT
+                           Custom user agent string
+      -c {300,500,1000,all}, --content-preview {300,500,1000,all}
+                           Number of characters to preview for content (default: 300)
+      -o {console,json}, --output {console,json}
+                           Output format (default: console)
+      -f FILE, --file FILE
+                           Output file name (for JSON output)
+
+### Example Complex Usage
+
+    python cnn_scraper.py --threads 20 --user-agent "Custom/1.0" --content-preview all --output json --file today_news.json

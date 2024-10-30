@@ -4,23 +4,68 @@ from datetime import datetime
 import re
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import argparse
+import sys
 
+def create_parser():
+    """Create and return the argument parser."""
+    parser = argparse.ArgumentParser(
+        description="""
+╔═══════════════════════════════════════════════════════════════════════╗
+║                         CNN News Scraper CLI                           ║
+║                                                                       ║
+║  A powerful tool for scraping and analyzing CNN news articles.        ║
+║  Supports multithreading, custom user agents, and flexible output.    ║
+╚═══════════════════════════════════════════════════════════════════════╝
+    """,
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    
+    parser.add_argument('-t', '--threads', 
+                       type=int, 
+                       default=10,
+                       help='Number of threads to use (default: 10)')
+    
+    parser.add_argument('-u', '--user-agent',
+                       type=str,
+                       help='Custom user agent string')
+    
+    parser.add_argument('-c', '--content-preview',
+                       type=str,
+                       default='300',
+                       choices=['300', '500', '1000', 'all'],
+                       help='Number of characters to preview for content (default: 300)')
+    
+    parser.add_argument('-o', '--output',
+                       type=str,
+                       choices=['console', 'json'],
+                       default='console',
+                       help='Output format (default: console)')
+    
+    parser.add_argument('-f', '--file',
+                       type=str,
+                       help='Output file name (for JSON output)')
+    
+    return parser
 
 class CNNNewsScraper:
-    def __init__(self, base_url="https://www.cnn.com"):
+    def __init__(self, base_url="https://www.cnn.com", threads=10, user_agent=None):
         """
         Initializes the CNNNewsScraper with a base URL and a requests session.
 
         Args:
             base_url (str): The base URL of the CNN website. Defaults to "https://www.cnn.com".
+            threads (int): Number of threads to use for scraping. Defaults to 10.
+            user_agent (str): Custom user agent string. Defaults to None.
         """
         self.base_url = base_url
+        self.threads = threads
         self.session = requests.Session()
-        self.session.headers.update(
-            {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36"
-            }
-        )
+        
+        default_user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36"
+        self.session.headers.update({
+            "User-Agent": user_agent or default_user_agent
+        })
 
     def fetch_main_page(self):
         """
@@ -162,7 +207,7 @@ class CNNNewsScraper:
                 print(f"Starting threaded download of {len(articles)} articles...")
 
                 results = []
-                with ThreadPoolExecutor(max_workers=10) as executor:
+                with ThreadPoolExecutor(max_workers=self.threads) as executor:
                     future_to_article = {
                         executor.submit(self.fetch_article, article): article
                         for article in articles
@@ -181,15 +226,39 @@ class CNNNewsScraper:
             print("Failed to retrieve main page articles.")
             return []
 
+def main():
+    parser = create_parser()
+    args = parser.parse_args()
 
-if __name__ == "__main__":
-    scraper = CNNNewsScraper()
+    # Initialize scraper with CLI arguments
+    scraper = CNNNewsScraper(threads=args.threads, user_agent=args.user_agent)
+    
     total_start = time.time()
     articles = scraper.get_main_page_articles()
     total_time = time.time() - total_start
+    
     print(f"Total scraping time: {total_time:.2f} seconds")
-    for article in articles:
-        print(f"Title: {article['title']}")
-        print(f"Date: {article['date']}")
-        print(f"Content: {article['content'][:300]}...")
-        print(f"URL: {article['url']}\n")
+    
+    if not articles:
+        print("No articles were found.")
+        sys.exit(1)
+    
+    if args.output == 'console':
+        preview_length = int(args.content_preview) if args.content_preview != 'all' else None
+        for article in articles:
+            print(f"Title: {article['title']}")
+            print(f"Date: {article['date']}")
+            content = article['content']
+            if preview_length:
+                content = f"{content[:preview_length]}..."
+            print(f"Content: {content}")
+            print(f"URL: {article['url']}\n")
+    else:  # json output
+        import json
+        output_file = args.file or 'cnn_articles.json'
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump(articles, f, ensure_ascii=False, indent=4)
+        print(f"Articles saved to {output_file}")
+
+if __name__ == "__main__":
+    main()
