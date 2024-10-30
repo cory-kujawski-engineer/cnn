@@ -5,6 +5,7 @@ import re
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+
 class CNNNewsScraper:
     def __init__(self, base_url="https://www.cnn.com"):
         """
@@ -15,9 +16,11 @@ class CNNNewsScraper:
         """
         self.base_url = base_url
         self.session = requests.Session()
-        self.session.headers.update({
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36"
-        })
+        self.session.headers.update(
+            {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36"
+            }
+        )
 
     def fetch_main_page(self):
         """
@@ -101,7 +104,9 @@ class CNNNewsScraper:
             response = self.session.get(url, timeout=10)
             response.raise_for_status()
             fetch_time = time.time() - fetch_start
-            print(f"Fetched article: {article_info['title']} in {fetch_time:.2f} seconds")
+            print(
+                f"Fetched article: {article_info['title']} in {fetch_time:.2f} seconds"
+            )
 
             parse_start = time.time()
             soup = BeautifulSoup(response.text, "html.parser")
@@ -112,23 +117,30 @@ class CNNNewsScraper:
             date_tag = soup.find("div", class_="timestamp vossi-timestamp")
             date_str = date_tag.text.strip() if date_tag else None
             try:
-                date = datetime.strptime(date_str, "Updated %I:%M %p %Z, %a %B %d, %Y").strftime("%Y-%m-%d %H:%M:%S") if date_str else "No Date Found"
+                date = (
+                    datetime.strptime(
+                        date_str, "Updated %I:%M %p %Z, %a %B %d, %Y"
+                    ).strftime("%Y-%m-%d %H:%M:%S")
+                    if date_str
+                    else "No Date Found"
+                )
             except (ValueError, TypeError):
                 date = "No Date Found"
 
-            paragraphs = soup.find_all("div", class_="paragraph__content") or soup.find_all("p")
-            content = "\n".join(p.get_text(strip=True) for p in paragraphs) if paragraphs else "No Content Found"
+            paragraphs = soup.find_all(
+                "div", class_="paragraph__content"
+            ) or soup.find_all("p")
+            content = (
+                "\n".join(p.get_text(strip=True) for p in paragraphs)
+                if paragraphs
+                else "No Content Found"
+            )
             content = content.replace("Follow:", "").strip()
 
             parse_time = time.time() - parse_start
             print(f"Parsed article: {title} in {parse_time:.2f} seconds")
 
-            return {
-                "title": title,
-                "date": date,
-                "content": content,
-                "url": url
-            }
+            return {"title": title, "date": date, "content": content, "url": url}
         except requests.RequestException as e:
             print(f"Error fetching article: {e}")
             return None
@@ -151,7 +163,10 @@ class CNNNewsScraper:
 
                 results = []
                 with ThreadPoolExecutor(max_workers=10) as executor:
-                    future_to_article = {executor.submit(self.fetch_article, article): article for article in articles}
+                    future_to_article = {
+                        executor.submit(self.fetch_article, article): article
+                        for article in articles
+                    }
                     for future in as_completed(future_to_article):
                         result = future.result()
                         if result:
@@ -165,6 +180,7 @@ class CNNNewsScraper:
         else:
             print("Failed to retrieve main page articles.")
             return []
+
 
 if __name__ == "__main__":
     scraper = CNNNewsScraper()
