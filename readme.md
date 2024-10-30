@@ -66,6 +66,9 @@ See requirements.txt for specific versions.
 - CNN for providing the content
 - BeautifulSoup4 for HTML parsing
 - Requests library for HTTP operations
+- Sake for endless hugs
+- Acid for getting me Tacobell
+- My dog pixel who has a UTI (poor baby)
 
 ## Disclaimer
 
